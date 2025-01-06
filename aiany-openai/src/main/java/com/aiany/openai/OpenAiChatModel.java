@@ -65,11 +65,15 @@ public class OpenAiChatModel implements ChatModel {
 
     @Override
     public Response<AssistantMessage> chat(UserMessage userMessage) {
-        return null;
+        return chat(Collections.singletonList(userMessage));
     }
 
     @Override
     public Response<AssistantMessage> chat(List<Message> messages) {
-        return null;
+        final ChatCompletionRequest chatCompletionRequest = ChatCompletionRequest.builder()
+                .messages(messages)
+                .build();
+        final ChatCompletionResponse chatCompletionResponse = openAiClient.chatCompletions(chatCompletionRequest);
+        return toResponse(chatCompletionResponse);
     }
 }

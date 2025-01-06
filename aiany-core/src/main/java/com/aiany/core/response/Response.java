@@ -15,4 +15,12 @@ public class Response<T> {
 
     private String finishReason;
 
+    public static <T> Response<T> create(T content, Usage usage, String finishReason) {
+        Response<T> response = new Response<>();
+        response.setContent(content);
+        response.setUsage(usage);
+        response.setFinishReason(finishReason);
+        return response;
+    }
+
 }

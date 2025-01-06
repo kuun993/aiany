@@ -27,11 +27,7 @@ public interface ChatModel {
     Response<AssistantMessage> chat(List<Message> messages);
 
     default Response<AssistantMessage> toResponse(ChatCompletionResponse chatCompletionResponse) {
-        Response<AssistantMessage> response = new Response<>();
-        response.setUsage(chatCompletionResponse.getUsage());
-        // TODO function calling
-        response.setContent(AssistantMessage.create(chatCompletionResponse.getResult()));
-        return response;
+        return Response.create(chatCompletionResponse.getAssistantMessage(), chatCompletionResponse.getUsage(), chatCompletionResponse.getFinishReason())
     }
 
 }

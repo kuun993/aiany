@@ -38,6 +38,12 @@ public class ChatCompletionResponse extends ErrorInfo {
      */
     private List<CompletionChoice> choices;
 
+
+    /**
+     * finishReason
+     */
+    private String finishReason;
+
     /**
      * usage
      */
@@ -59,5 +65,26 @@ public class ChatCompletionResponse extends ErrorInfo {
     public String getResult() {
         return this.choices.get(0).getMessage().getContent();
     }
+
+
+    /**
+     * 是否函数调用
+     * @return  是否函数调用
+     */
+    public boolean isFunctionCalling() {
+        final AssistantMessage message = this.choices.get(0).getMessage();
+        final List<ToolCall> toolCalls = message.getToolCalls();
+        return toolCalls != null && !toolCalls.isEmpty();
+    }
+
+
+    /**
+     * 获取助手消息
+     * @return  AssistantMessage
+     */
+    public AssistantMessage getAssistantMessage() {
+        return this.choices.get(0).getMessage();
+    }
+
 
 }
