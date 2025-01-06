@@ -27,7 +27,7 @@ public interface ChatModel {
     Response<AssistantMessage> chat(List<Message> messages);
 
     default Response<AssistantMessage> toResponse(ChatCompletionResponse chatCompletionResponse) {
-        return Response.create(chatCompletionResponse.getAssistantMessage(), chatCompletionResponse.getUsage(), chatCompletionResponse.getFinishReason())
+        return Response.create(chatCompletionResponse.getAssistantMessage(), chatCompletionResponse.getUsage(), chatCompletionResponse.getFinishReason());
     }
 
 }
