@@ -15,6 +15,11 @@
 
 
     <dependencies>
+
+        <dependency>
+            <groupId>com.aiany</groupId>
+            <artifactId>aiany-core</artifactId>
+        </dependency>
     
         <dependency>
             <groupId>com.azure</groupId>
