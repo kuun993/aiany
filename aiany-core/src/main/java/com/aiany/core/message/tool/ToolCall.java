@@ -1,5 +1,6 @@
 package com.aiany.core.message.tool;
 
+import lombok.Builder;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -7,6 +8,7 @@ import java.io.Serializable;
 /**
  * @author waani
  */
+@Builder
 @Data
 public class ToolCall implements Serializable {
 
@@ -17,5 +19,6 @@ public class ToolCall implements Serializable {
     private String name;
 
     private String arguments;
+    
 
 }
