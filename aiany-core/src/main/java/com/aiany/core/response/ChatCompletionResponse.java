@@ -1,5 +1,7 @@
 package com.aiany.core.response;
 
+import com.aiany.core.message.AssistantMessage;
+import com.aiany.core.message.tool.ToolCall;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Builder;
 import lombok.Data;

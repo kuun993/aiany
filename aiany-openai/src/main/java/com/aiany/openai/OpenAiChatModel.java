@@ -5,8 +5,10 @@ import com.aiany.core.Tokenizer;
 import com.aiany.core.message.AssistantMessage;
 import com.aiany.core.message.Message;
 import com.aiany.core.message.UserMessage;
+import com.aiany.core.message.tool.ToolCall;
 import com.aiany.core.model.ChatModel;
 import com.aiany.core.request.ChatCompletionRequest;
+import com.aiany.core.request.Tool;
 import com.aiany.core.response.ChatCompletionResponse;
 import com.aiany.core.response.Response;
 import lombok.Builder;
@@ -22,6 +24,8 @@ import java.util.Map;
 public class OpenAiChatModel implements ChatModel {
 
     private final OpenAiClient openAiClient;
+
+    private Client.Options options;
 
     @Builder
     public OpenAiChatModel(String baseUrl,
@@ -41,6 +45,7 @@ public class OpenAiChatModel implements ChatModel {
                 .baseUrl(baseUrl)
                 .apiKey(apiKey)
                 .organizationId(organizationId)
+                .model(modelName)
                 .callTimeout(timeout)
                 .connectTimeout(timeout)
                 .readTimeout(timeout)
@@ -50,15 +55,29 @@ public class OpenAiChatModel implements ChatModel {
                 .logResponses(logResponses)
                 .customHeaders(customHeaders)
                 .build();
+        this.options = options;
         this.openAiClient = OpenAiClient.builder().options(options).build();
     }
+
+    /**
+     * 构建请求参数
+     * @param messages  消息
+     * @param tools    工具
+     * @return  ChatCompletionRequest
+     */
+    private ChatCompletionRequest buildChatCompletionRequest(List<Message> messages, List<Tool> tools) {
+        return ChatCompletionRequest.builder()
+                .messages(messages)
+                .tools(tools)
+                .model(options.model)
+                .build();
+    }
+
 
     @Override
     public String chat(String prompt) {
         UserMessage userMessage = UserMessage.create(prompt);
-        final ChatCompletionRequest chatCompletionRequest = ChatCompletionRequest.builder()
-                .messages(Collections.singletonList(userMessage))
-                .build();
+        final ChatCompletionRequest chatCompletionRequest = buildChatCompletionRequest(Collections.singletonList(userMessage), null);
         final ChatCompletionResponse chatCompletionResponse = openAiClient.chatCompletions(chatCompletionRequest);
         return chatCompletionResponse.getResult();
     }

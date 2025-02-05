@@ -111,34 +111,30 @@ public abstract class Client {
         }
 
         public Options callTimeout(Duration callTimeout) {
-            if (callTimeout == null) {
-                throw new IllegalArgumentException("callTimeout cannot be null");
+            if (callTimeout != null) {
+                this.callTimeout = callTimeout;
             }
-            this.callTimeout = callTimeout;
             return this;
         }
 
         public Options connectTimeout(Duration connectTimeout) {
-            if (connectTimeout == null) {
-                throw new IllegalArgumentException("connectTimeout cannot be null");
+            if (connectTimeout != null) {
+                this.connectTimeout = connectTimeout;
             }
-            this.connectTimeout = connectTimeout;
             return this;
         }
 
         public Options readTimeout(Duration readTimeout) {
-            if (readTimeout == null) {
-                throw new IllegalArgumentException("readTimeout cannot be null");
+            if (readTimeout != null) {
+                this.readTimeout = readTimeout;
             }
-            this.readTimeout = readTimeout;
             return this;
         }
 
         public Options writeTimeout(Duration writeTimeout) {
-            if (writeTimeout == null) {
-                throw new IllegalArgumentException("writeTimeout cannot be null");
+            if (writeTimeout != null) {
+                this.writeTimeout = writeTimeout;
             }
-            this.writeTimeout = writeTimeout;
             return this;
         }
 

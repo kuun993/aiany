@@ -54,6 +54,22 @@ public class ChatCompletionRequest implements Serializable {
 
     @Builder
     public ChatCompletionRequest(String model, List<Message> messages, Double temperature, Double topP, Integer n, Boolean stream, List<String> stop, Integer maxTokens, Double presencePenalty, Double frequencyPenalty, Map<String, Integer> logitBias, String user, ResponseFormat responseFormat, Integer seed, List<Tool> tools, Tool toolChoice) {
+        this.model = model;
+        this.messages = messages;
+        this.temperature = temperature;
+        this.topP = topP;
+        this.n = n;
+        this.stream = stream;
+        this.stop = stop;
+        this.maxTokens = maxTokens;
+        this.presencePenalty = presencePenalty;
+        this.frequencyPenalty = frequencyPenalty;
+        this.logitBias = logitBias;
+        this.user = user;
+        this.responseFormat = responseFormat;
+        this.seed = seed;
+        this.tools = tools;
+        this.toolChoice = toolChoice;
     }
 
 }

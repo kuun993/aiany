@@ -15,7 +15,7 @@ public abstract class Message implements Serializable {
     /**
      * role
      */
-    protected Role role;
+    protected String role;
 
     /**
      * content
@@ -27,17 +27,5 @@ public abstract class Message implements Serializable {
      */
     protected String refusal;
 
-
-    public enum Role {
-
-        SYSTEM,
-
-        USER,
-
-        ASSISTANT,
-
-        TOOL,
-        ;
-    }
 
 }
