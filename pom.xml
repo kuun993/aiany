@@ -25,7 +25,6 @@
     <modules>
         <module>aiany-core</module>
         <module>aiany-openai</module>
-        <module>aiany-openai</module>
         <module>aiany-azure</module>
     </modules>
 

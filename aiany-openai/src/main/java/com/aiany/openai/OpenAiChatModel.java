@@ -5,7 +5,6 @@ import com.aiany.core.Tokenizer;
 import com.aiany.core.message.AssistantMessage;
 import com.aiany.core.message.Message;
 import com.aiany.core.message.UserMessage;
-import com.aiany.core.message.tool.ToolCall;
 import com.aiany.core.model.ChatModel;
 import com.aiany.core.request.ChatCompletionRequest;
 import com.aiany.core.request.Tool;
