@@ -8,7 +8,7 @@
         <version>0.0.1</version>
         <relativePath/>
     </parent>
-    <artifactId>aiany-openai1</artifactId>
+    <artifactId>aiany-openai</artifactId>
     <name>aiany-openai</name>
     <description>aiany-openai</description>
     <packaging>jar</packaging>
