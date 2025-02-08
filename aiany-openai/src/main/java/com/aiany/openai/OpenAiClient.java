@@ -75,12 +75,19 @@ public class OpenAiClient extends Client {
 
 
     @Override
+    public Call<ChatCompletionResponse> call(ChatCompletionRequest chatCompletionRequest) {
+        return openAiApi.chatCompletions(chatCompletionRequest);
+    }
+
+    @Override
     public ChatCompletionResponse chatCompletions(ChatCompletionRequest chatCompletionRequest) {
-        final Call<ChatCompletionResponse> chatCompletionResponseCall = openAiApi.chatCompletions(chatCompletionRequest);
+        Call<ChatCompletionResponse> chatCompletionResponseCall = call(chatCompletionRequest);
         try {
             return chatCompletionResponseCall.execute().body();
         } catch (Exception e) {
             throw new AiAnyException(e);
         }
     }
+
+    
 }

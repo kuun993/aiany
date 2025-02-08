@@ -29,4 +29,9 @@ public class CompletionChoice {
     private AssistantMessage message;
 
 
+    /**
+     * 流式回复
+     */
+    private Delta delta;
+
 }

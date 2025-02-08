@@ -7,6 +7,9 @@ import com.aiany.core.serializable.DefaultGsonFactory;
 import com.aiany.core.serializable.GsonFactory;
 import com.aiany.core.spi.ServiceHelper;
 import com.google.gson.Gson;
+
+import retrofit2.Call;
+
 import java.net.InetSocketAddress;
 import java.net.Proxy;
 import java.nio.file.Path;
@@ -18,6 +21,8 @@ import java.util.Map;
  * @author waani
  */
 public abstract class Client {
+
+    public abstract Call<ChatCompletionResponse> call(ChatCompletionRequest chatCompletionRequest);
 
     public abstract ChatCompletionResponse chatCompletions(ChatCompletionRequest chatCompletionRequest);
 

@@ -16,9 +16,7 @@ public class ToolCall implements Serializable {
 
     private String id;
 
-    private String name;
-
-    private String arguments;
+    private FunctionCall function;
     
-
+    private Integer index;
 }
