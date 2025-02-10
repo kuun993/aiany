@@ -1,5 +1,6 @@
 package com.aiany.core.model;
 
+import java.util.Collections;
 import java.util.List;
 
 import com.aiany.core.message.AssistantMessage;
@@ -15,7 +16,7 @@ public interface StreamingChatModel {
 
     default void chat(String message, StreamingResponseHandler<AssistantMessage> handler) {
         UserMessage userMessage = UserMessage.create(message);
-        chat(List.of(userMessage), null, handler);
+        chat(Collections.singletonList(userMessage), null, handler);
     }
 
     default void chat(List<Message> messages, StreamingResponseHandler<AssistantMessage> handler) {

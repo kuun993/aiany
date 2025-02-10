@@ -74,6 +74,7 @@ public class OpenAiStreamingChatModel implements StreamingChatModel {
 
             @Override
             public void onFailure(Call<ChatCompletionResponse> call, Throwable t) {
+                handler.onError(t);
                 countDownLatch.countDown();
             }
             
