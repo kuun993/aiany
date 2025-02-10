@@ -70,7 +70,7 @@ public class OpenAiStreamingChatModel implements StreamingChatModel {
         OpenAiStreamingResponseBuilder openAiStreamingResponseBuilder = new OpenAiStreamingResponseBuilder();
         Gson gson = Client.getGson();
         Request request = new Request.Builder()
-                .url(this.options.baseUrl + "/chat/completions")
+                .url(this.options.baseUrl + "chat/completions")
                 .post(RequestBody.create(MediaType.get("application/json; charset=utf-8"),
                         gson.toJson(chatCompletionRequest)))
                 .build();
@@ -90,7 +90,10 @@ public class OpenAiStreamingChatModel implements StreamingChatModel {
 
             @Override
             public void onFailure(EventSource eventSource, Throwable t, okhttp3.Response response) {
-                handler.onFailure(t);
+                if (t != null) {
+                    handler.onFailure(t);
+                }
+                handler.onFailure(new RuntimeException("streaming error."));
             }
 
         });

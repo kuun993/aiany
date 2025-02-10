@@ -12,7 +12,7 @@ public class DefaultGsonFactory implements GsonFactory {
     @Override
     public Gson get() {
         return new GsonBuilder()
-                .setFieldNamingStrategy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+                .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
                 .create();
     }
 }
