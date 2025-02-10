@@ -71,29 +71,26 @@ public class OpenAiStreamingChatModel implements StreamingChatModel {
         Gson gson = Client.getGson();
         Request request = new Request.Builder()
                 .url(this.options.baseUrl + "/chat/completions")
-                .post(RequestBody.create(MediaType.get("application/json; charset=utf-8"), gson.toJson(chatCompletionRequest)))
+                .post(RequestBody.create(MediaType.get("application/json; charset=utf-8"),
+                        gson.toJson(chatCompletionRequest)))
                 .build();
 
         EventSources.createFactory(openAiClient.getOkHttpClient()).newEventSource(request, new EventSourceListener() {
-           
+
             @Override
             public void onEvent(EventSource eventSource, String id, String type, String data) {
-                if (data == null || Objects.equals(data, endTag())) {
+                if (Objects.equals(data, endTag())) {
+                    Response<AssistantMessage> response = openAiStreamingResponseBuilder.build();
+                    handler.onComplete(response);
                     return;
                 }
-                ChatCompletionResponse chatCompletionResponse  = gson.fromJson(data, ChatCompletionResponse.class);
+                ChatCompletionResponse chatCompletionResponse = gson.fromJson(data, ChatCompletionResponse.class);
                 openAiStreamingResponseBuilder.append(chatCompletionResponse, handler);
             }
 
             @Override
             public void onFailure(EventSource eventSource, Throwable t, okhttp3.Response response) {
                 handler.onFailure(t);
-            }
-
-            @Override
-            public void onClosed(EventSource eventSource) {
-                Response<AssistantMessage> response = openAiStreamingResponseBuilder.build();
-                handler.onComplete(response);
             }
 
         });
@@ -109,6 +106,7 @@ public class OpenAiStreamingChatModel implements StreamingChatModel {
      */
     private ChatCompletionRequest buildChatCompletionRequest(List<Message> messages, List<Tool> tools) {
         return ChatCompletionRequest.builder()
+                .stream(true)
                 .messages(messages)
                 .tools(tools)
                 .model(options.model)
