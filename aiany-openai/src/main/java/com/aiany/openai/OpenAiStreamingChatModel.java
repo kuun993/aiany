@@ -4,7 +4,7 @@ import java.net.Proxy;
 import java.time.Duration;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
+import java.util.Objects;
 
 import com.aiany.core.Client;
 import com.aiany.core.Tokenizer;
@@ -16,10 +16,15 @@ import com.aiany.core.request.ChatCompletionRequest;
 import com.aiany.core.request.Tool;
 import com.aiany.core.response.ChatCompletionResponse;
 import com.aiany.core.response.Response;
+import com.google.gson.Gson;
 
 import lombok.Builder;
-import retrofit2.Call;
-import retrofit2.Callback;
+import okhttp3.MediaType;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.sse.EventSource;
+import okhttp3.sse.EventSourceListener;
+import okhttp3.sse.EventSources;
 
 public class OpenAiStreamingChatModel implements StreamingChatModel {
 
@@ -62,40 +67,45 @@ public class OpenAiStreamingChatModel implements StreamingChatModel {
     @Override
     public void chat(List<Message> messages, List<Tool> tools, StreamingResponseHandler<AssistantMessage> handler) {
         ChatCompletionRequest chatCompletionRequest = buildChatCompletionRequest(messages, tools);
-        Call<ChatCompletionResponse> call = openAiClient.call(chatCompletionRequest);
-        CountDownLatch countDownLatch = new CountDownLatch(1);
         OpenAiStreamingResponseBuilder openAiStreamingResponseBuilder = new OpenAiStreamingResponseBuilder();
-        call.enqueue(new Callback<ChatCompletionResponse>() {
+        Gson gson = Client.getGson();
+        Request request = new Request.Builder()
+                .url(this.options.baseUrl + "/chat/completions")
+                .post(RequestBody.create(MediaType.get("application/json; charset=utf-8"), gson.toJson(chatCompletionRequest)))
+                .build();
+
+        EventSources.createFactory(openAiClient.getOkHttpClient()).newEventSource(request, new EventSourceListener() {
+           
             @Override
-            public void onResponse(Call<ChatCompletionResponse> call, retrofit2.Response<ChatCompletionResponse> response) {
-                ChatCompletionResponse chatCompletionResponse = response.body();
+            public void onEvent(EventSource eventSource, String id, String type, String data) {
+                if (data == null || Objects.equals(data, endTag())) {
+                    return;
+                }
+                ChatCompletionResponse chatCompletionResponse  = gson.fromJson(data, ChatCompletionResponse.class);
                 openAiStreamingResponseBuilder.append(chatCompletionResponse, handler);
             }
 
             @Override
-            public void onFailure(Call<ChatCompletionResponse> call, Throwable t) {
-                handler.onError(t);
-                countDownLatch.countDown();
+            public void onFailure(EventSource eventSource, Throwable t, okhttp3.Response response) {
+                handler.onFailure(t);
             }
-            
+
+            @Override
+            public void onClosed(EventSource eventSource) {
+                Response<AssistantMessage> response = openAiStreamingResponseBuilder.build();
+                handler.onComplete(response);
+            }
+
         });
-        // 等待回复完成
-        try {
-            countDownLatch.await();
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e.getMessage(), e);
-        }
-        Response<AssistantMessage> response = openAiStreamingResponseBuilder.build();
-        handler.onComplete(response);
+
     }
-
-
 
     /**
      * 构建请求参数
-     * @param messages  消息
+     * 
+     * @param messages 消息
      * @param tools    工具
-     * @return  ChatCompletionRequest
+     * @return ChatCompletionRequest
      */
     private ChatCompletionRequest buildChatCompletionRequest(List<Message> messages, List<Tool> tools) {
         return ChatCompletionRequest.builder()

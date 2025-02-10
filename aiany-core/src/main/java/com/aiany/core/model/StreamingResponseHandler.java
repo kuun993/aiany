@@ -4,11 +4,11 @@ import com.aiany.core.response.Response;
 
 public interface StreamingResponseHandler<T> {
 
-    void onNext(String token);
+    void onEvent(String token);
  
     default void onComplete(Response<T> response) {
     }
 
-    void onError(Throwable error);
+    void onFailure(Throwable error);
 
 }

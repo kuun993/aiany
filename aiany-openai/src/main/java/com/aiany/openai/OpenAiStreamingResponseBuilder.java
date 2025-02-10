@@ -54,7 +54,7 @@ public class OpenAiStreamingResponseBuilder {
         String content = delta.getContent();
         if (content != null) {
             this.contentBuilder.append(content);
-            handler.onNext(content);
+            handler.onEvent(content);
             return;
         }
 

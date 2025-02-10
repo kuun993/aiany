@@ -26,8 +26,12 @@ public class OpenAiClient extends Client {
 
     private final ChatApi openAiApi;
 
+
+    private final OkHttpClient okHttpClient;
+
     @Builder
     public OpenAiClient(@NonNull Client.Options options) {
+        this.okHttpClient = okHttpClient(options);
         this.openAiApi = openAiClient(options);
     }
 
@@ -63,7 +67,7 @@ public class OpenAiClient extends Client {
     private ChatApi openAiClient(Client.Options options) {
         return new Retrofit.Builder()
                 .baseUrl(options.baseUrl)
-                .client(okHttpClient(options))
+                .client(this.okHttpClient)
                 .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                 .addConverterFactory(converterFactory())
                 .build().create(ChatApi.class);
@@ -87,6 +91,11 @@ public class OpenAiClient extends Client {
         } catch (Exception e) {
             throw new AiAnyException(e);
         }
+    }
+
+
+    public OkHttpClient getOkHttpClient() {
+        return this.okHttpClient;
     }
 
     
