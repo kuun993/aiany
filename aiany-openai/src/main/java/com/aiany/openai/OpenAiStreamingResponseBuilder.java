@@ -43,7 +43,7 @@ public class OpenAiStreamingResponseBuilder {
 
         CompletionChoice choice = choices.get(0);
         // set finishReason
-        if (this.finishReason != null && choice.getFinishReason() != null) {
+        if (this.finishReason == null && choice.getFinishReason() != null) {
             this.finishReason = choice.getFinishReason();
         }
 

@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+
 import com.aiany.core.message.AssistantMessage;
 import com.aiany.core.message.Message;
 import com.aiany.core.message.SystemMessage;
@@ -48,13 +49,13 @@ public class AzureOpenAiChatModel implements ChatModel {
     private final Double temperature;
 
     public AzureOpenAiChatModel(String deploymentName,
-            String endpoint,
-            OpenAIServiceVersion apiVersion,
-            ProxyOptions proxyOptions,
-            Duration timeout,
-            Integer maxRetries,
-            Integer maxTokens,
-            Double temperature) {
+                                String endpoint,
+                                OpenAIServiceVersion apiVersion,
+                                ProxyOptions proxyOptions,
+                                Duration timeout,
+                                Integer maxRetries,
+                                Integer maxTokens,
+                                Double temperature) {
 
         this.deploymentName = deploymentName;
         this.maxTokens = maxTokens;
@@ -65,7 +66,7 @@ public class AzureOpenAiChatModel implements ChatModel {
     }
 
     private OpenAIClientBuilder getOpenAIClientBuilder(String endpoint, OpenAIServiceVersion apiVersion,
-            ProxyOptions proxyOptions, Duration timeout, Integer maxRetries) {
+                                                       ProxyOptions proxyOptions, Duration timeout, Integer maxRetries) {
 
         // 默认60秒
         timeout = DefaultUtil.getOrDefault(timeout, Duration.ofSeconds(60));
@@ -119,7 +120,7 @@ public class AzureOpenAiChatModel implements ChatModel {
                 chatRequestMessages.add(new ChatRequestToolMessage(toolResultMessage.getContent(), toolResultMessage.getId()));
             } else if (m instanceof AssistantMessage) {
                 AssistantMessage assistantMessage = (AssistantMessage) m;
-                
+
                 ChatRequestAssistantMessage chatRequestAssistantMessage = new ChatRequestAssistantMessage(assistantMessage.getContent());
                 chatRequestAssistantMessage.setToolCalls(getChatCompletionsToolCalls(assistantMessage.getToolCalls()));
                 chatRequestMessages.add(chatRequestAssistantMessage);
@@ -129,15 +130,14 @@ public class AzureOpenAiChatModel implements ChatModel {
     }
 
 
-
     private List<ChatCompletionsToolCall> getChatCompletionsToolCalls(List<ToolCall> toolCalls) {
         if (toolCalls == null || toolCalls.isEmpty()) {
             return Collections.emptyList();
         }
         List<ChatCompletionsToolCall> chatCompletionsToolCalls = new ArrayList<>(toolCalls.size());
         toolCalls.forEach(tc -> {
-            ChatCompletionsFunctionToolCall chatCompletionsFunctionToolCall = 
-            new ChatCompletionsFunctionToolCall(tc.getId(), new FunctionCall(tc.getName(), tc.getArguments()));
+            ChatCompletionsFunctionToolCall chatCompletionsFunctionToolCall =
+                    new ChatCompletionsFunctionToolCall(tc.getId(), new FunctionCall(tc.getFunction().getName(), tc.getFunction().getArguments()));
             chatCompletionsToolCalls.add(chatCompletionsFunctionToolCall);
         });
         return chatCompletionsToolCalls;
@@ -151,7 +151,7 @@ public class AzureOpenAiChatModel implements ChatModel {
     }
 
     @Override
-    public Response<AssistantMessage> chat(UserMessage userMessage){
+    public Response<AssistantMessage> chat(UserMessage userMessage) {
         return chat(Collections.singletonList(userMessage));
     }
 
@@ -160,41 +160,43 @@ public class AzureOpenAiChatModel implements ChatModel {
         ChatCompletionsOptions chatCompletionsOptions = getChatCompletionsOptions(getChatRequestMessage(messages));
         ChatCompletions chatCompletions = openAIClient.getChatCompletions(deploymentName, chatCompletionsOptions);
         ChatChoice chatChoice = chatCompletions.getChoices().get(0);
-        return Response.create(handleAssistantMessage(chatChoice.getDelta()), 
-            handleTokenUsag(chatCompletions.getUsage()), 
-            chatChoice.getFinishReason().getValue());
+        return Response.create(handleAssistantMessage(chatChoice.getDelta()),
+                handleTokenUsag(chatCompletions.getUsage()),
+                chatChoice.getFinishReason().getValue());
     }
-
 
 
     /**
      * 处理 Azure Assistant Message
-     * @param chatResponseMessage    chatResponseMessage
-     * @return  AssistantMessage
+     *
+     * @param chatResponseMessage chatResponseMessage
+     * @return AssistantMessage
      */
     private AssistantMessage handleAssistantMessage(ChatResponseMessage chatResponseMessage) {
         List<ChatCompletionsToolCall> chatCompletionsToolCalls = chatResponseMessage.getToolCalls();
         if (chatCompletionsToolCalls == null || chatCompletionsToolCalls.isEmpty()) {
             return AssistantMessage.create(chatResponseMessage.getContent());
         } else {
-            List<ToolCall> toolCalls =  chatCompletionsToolCalls.stream()
-            .filter(toolCall -> toolCall instanceof ChatCompletionsFunctionToolCall)
-            .map(toolCall -> (ChatCompletionsFunctionToolCall) toolCall)
-            .map(toolCall -> {
-                return ToolCall.builder()
-                .id(toolCall.getId())
-                .name(toolCall.getFunction().getName())
-                .arguments(toolCall.getFunction().getArguments())
-                .build();
-            }).collect(Collectors.toList());
+            List<ToolCall> toolCalls = chatCompletionsToolCalls.stream()
+                    .filter(ChatCompletionsFunctionToolCall.class::isInstance)
+                    .map(ChatCompletionsFunctionToolCall.class::cast)
+                    .map(toolCall -> {
+                        return ToolCall.builder()
+                                .id(toolCall.getId())
+                                .function(com.aiany.core.message.tool.FunctionCall.builder()
+                                        .name(toolCall.getFunction().getName())
+                                        .arguments(toolCall.getFunction().getArguments())
+                                        .build())
+                                .build();
+                    }).collect(Collectors.toList());
             return AssistantMessage.create(toolCalls);
         }
     }
 
 
-
     /**
      * 处理 Token Usage
+     *
      * @param completionsUsage
      * @return
      */
@@ -203,10 +205,10 @@ public class AzureOpenAiChatModel implements ChatModel {
             return null;
         }
         return Usage.builder()
-        .promptTokens(completionsUsage.getPromptTokens())
-        .completionTokens(completionsUsage.getCompletionTokens())
-        .totalTokens(completionsUsage.getTotalTokens())
-        .build();
+                .promptTokens(completionsUsage.getPromptTokens())
+                .completionTokens(completionsUsage.getCompletionTokens())
+                .totalTokens(completionsUsage.getTotalTokens())
+                .build();
     }
 
 }
