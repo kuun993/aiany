@@ -12,9 +12,9 @@ import com.aiany.core.message.AssistantMessage;
 import com.aiany.core.message.Message;
 import com.aiany.core.model.StreamingChatModel;
 import com.aiany.core.model.StreamingResponseHandler;
+import com.aiany.core.request.ChatCompletionRequest;
 import com.aiany.core.request.Tool;
 import com.aiany.core.response.ChatCompletionResponse;
-import com.aiany.core.response.CompletionChoice;
 import com.aiany.core.response.Response;
 
 import lombok.Builder;
@@ -61,7 +61,8 @@ public class OpenAiStreamingChatModel implements StreamingChatModel {
 
     @Override
     public void chat(List<Message> messages, List<Tool> tools, StreamingResponseHandler<AssistantMessage> handler) {
-        Call<ChatCompletionResponse> call = openAiClient.call(null);
+        ChatCompletionRequest chatCompletionRequest = buildChatCompletionRequest(messages, tools);
+        Call<ChatCompletionResponse> call = openAiClient.call(chatCompletionRequest);
         CountDownLatch countDownLatch = new CountDownLatch(1);
         OpenAiStreamingResponseBuilder openAiStreamingResponseBuilder = new OpenAiStreamingResponseBuilder();
         call.enqueue(new Callback<ChatCompletionResponse>() {
@@ -85,6 +86,22 @@ public class OpenAiStreamingChatModel implements StreamingChatModel {
         }
         Response<AssistantMessage> response = openAiStreamingResponseBuilder.build();
         handler.onComplete(response);
+    }
+
+
+
+    /**
+     * 构建请求参数
+     * @param messages  消息
+     * @param tools    工具
+     * @return  ChatCompletionRequest
+     */
+    private ChatCompletionRequest buildChatCompletionRequest(List<Message> messages, List<Tool> tools) {
+        return ChatCompletionRequest.builder()
+                .messages(messages)
+                .tools(tools)
+                .model(options.model)
+                .build();
     }
 
 }
