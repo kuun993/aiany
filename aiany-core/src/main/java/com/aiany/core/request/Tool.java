@@ -21,6 +21,9 @@ public class Tool implements Serializable {
     private Function function;
 
 
+    public static ToolBuilder builder() {
+        return new ToolBuilder();
+    }
 
     public static class ToolBuilder {
 
@@ -34,10 +37,6 @@ public class Tool implements Serializable {
 
         private ToolBuilder() {}
 
-        public static ToolBuilder builder() {
-            return new ToolBuilder();
-        }
-
         public ToolBuilder name(String name) {
             this.name = name;
             return this;
@@ -48,13 +47,14 @@ public class Tool implements Serializable {
             return this;
         }
 
-        public ToolBuilder addProperty(String field, String type, boolean isRequired) {
+        public ToolBuilder addProperty(String field, String description, String type, boolean isRequired) {
             if (properties == null) {
                 properties = new HashMap<>();
                 required = new ArrayList<>();
             }
             Map<String, Object> map = new HashMap<>();
             map.put("type", type);
+            map.put("description", description);
             properties.put(field, map);
             if (isRequired) {
                 required.add(field);

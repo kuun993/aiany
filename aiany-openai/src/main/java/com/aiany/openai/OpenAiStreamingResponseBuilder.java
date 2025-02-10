@@ -102,19 +102,19 @@ public class OpenAiStreamingResponseBuilder {
         Response<AssistantMessage> response = new Response<>();
         response.setFinishReason(finishReason);
         AssistantMessage assistantMessage = new AssistantMessage();
-
+        response.setContent(assistantMessage);
         if (toolCallBuilders.isEmpty()) {
             assistantMessage.setContent(contentBuilder.toString());
             assistantMessage.setRole(Role.ASSISTANT.getRole());
-            response.setContent(assistantMessage);
             return response;
         }
         // function calling
         List<ToolCall> toolCalls = new ArrayList<>(toolCallBuilders.size());
         toolCallBuilders.forEach((index, toolCallBuilder) -> {
-            FunctionCall functionCall = new FunctionCall();
-            functionCall.setName(toolCallBuilder.nameBuilder.toString());
-            functionCall.setArguments(toolCallBuilder.argumentsBuilder.toString());
+            FunctionCall functionCall = FunctionCall.builder()
+                    .name(toolCallBuilder.nameBuilder.toString())
+                    .arguments(toolCallBuilder.argumentsBuilder.toString())
+                    .build();
             ToolCall toolCall = ToolCall.builder()
                     .id(toolCallBuilder.idBuilder.toString())
                     .function(functionCall)
