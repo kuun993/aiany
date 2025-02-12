@@ -17,6 +17,11 @@
     <dependencies>
 
         <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>com.aiany</groupId>
             <artifactId>aiany-core</artifactId>
         </dependency>
