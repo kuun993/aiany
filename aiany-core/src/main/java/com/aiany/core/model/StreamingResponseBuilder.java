@@ -35,7 +35,6 @@ public abstract class StreamingResponseBuilder {
         this.inputToken = inputToken;
     }
 
-
     /**
      * 构建流式请求完整回复
      *
@@ -49,22 +48,22 @@ public abstract class StreamingResponseBuilder {
         if (toolCallBuilders.isEmpty()) {
             assistantMessage.setContent(contentBuilder.toString());
             assistantMessage.setRole(Role.ASSISTANT.getRole());
-            return response;
+        } else {
+            // function calling
+            List<ToolCall> toolCalls = new ArrayList<>(toolCallBuilders.size());
+            toolCallBuilders.forEach((index, toolCallBuilder) -> {
+                com.aiany.core.message.tool.FunctionCall functionCall = FunctionCall.builder()
+                        .name(toolCallBuilder.nameBuilder.toString())
+                        .arguments(toolCallBuilder.argumentsBuilder.toString())
+                        .build();
+                ToolCall toolCall = ToolCall.builder()
+                        .id(toolCallBuilder.idBuilder.toString())
+                        .function(functionCall)
+                        .build();
+                toolCalls.add(toolCall);
+            });
+            assistantMessage.setToolCalls(toolCalls);
         }
-        // function calling
-        List<ToolCall> toolCalls = new ArrayList<>(toolCallBuilders.size());
-        toolCallBuilders.forEach((index, toolCallBuilder) -> {
-            com.aiany.core.message.tool.FunctionCall functionCall = FunctionCall.builder()
-                    .name(toolCallBuilder.nameBuilder.toString())
-                    .arguments(toolCallBuilder.argumentsBuilder.toString())
-                    .build();
-            ToolCall toolCall = ToolCall.builder()
-                    .id(toolCallBuilder.idBuilder.toString())
-                    .function(functionCall)
-                    .build();
-            toolCalls.add(toolCall);
-        });
-        assistantMessage.setToolCalls(toolCalls);
         // token usage
         Usage usage = new Usage();
         usage.setPromptTokens(inputToken);
@@ -74,8 +73,6 @@ public abstract class StreamingResponseBuilder {
         response.setUsage(usage);
         return response;
     }
-
-
 
     @Getter
     protected static class ToolCallBuilder {
