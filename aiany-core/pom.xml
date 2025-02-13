@@ -61,6 +61,11 @@
             <artifactId>adapter-rxjava2</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.knuddels</groupId>
+            <artifactId>jtokkit</artifactId>
+        </dependency>
+
     </dependencies>
 
 </project>

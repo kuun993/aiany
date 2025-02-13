@@ -4,7 +4,10 @@ import com.aiany.core.enums.Role;
 import com.aiany.core.message.AssistantMessage;
 import com.aiany.core.message.tool.FunctionCall;
 import com.aiany.core.message.tool.ToolCall;
+import com.aiany.core.model.token.Tokenizer;
 import com.aiany.core.response.Response;
+import com.aiany.core.response.Usage;
+
 import lombok.Getter;
 
 import java.util.ArrayList;
@@ -18,26 +21,27 @@ import java.util.Map;
  */
 public abstract class StreamingResponseBuilder {
 
+    private int inputToken;
+
     protected String finishReason;
 
     protected final StringBuffer contentBuilder;
 
     protected final Map<Object, ToolCallBuilder> toolCallBuilders;
 
-    protected StreamingResponseBuilder() {
+    protected StreamingResponseBuilder(int inputToken) {
         this.contentBuilder = new StringBuffer();
         this.toolCallBuilders = new HashMap<>();
+        this.inputToken = inputToken;
     }
 
 
     /**
      * 构建流式请求完整回复
      *
-     * TODO: token
-     *
      * @return Response<AssistantMessage>
      */
-    public Response<AssistantMessage> build() {
+    public Response<AssistantMessage> build(Tokenizer tokenizer) {
         Response<AssistantMessage> response = new Response<>();
         response.setFinishReason(finishReason);
         AssistantMessage assistantMessage = new AssistantMessage();
@@ -61,6 +65,13 @@ public abstract class StreamingResponseBuilder {
             toolCalls.add(toolCall);
         });
         assistantMessage.setToolCalls(toolCalls);
+        // token usage
+        Usage usage = new Usage();
+        usage.setPromptTokens(inputToken);
+        int completionTokens = tokenizer.estimateTokenCountInMessage(assistantMessage);
+        usage.setCompletionTokens(completionTokens);
+        usage.setTotalTokens(inputToken + completionTokens);
+        response.setUsage(usage);
         return response;
     }
 

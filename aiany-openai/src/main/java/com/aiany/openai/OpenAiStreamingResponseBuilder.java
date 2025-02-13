@@ -12,6 +12,11 @@ import com.aiany.core.response.Delta;
 
 public class OpenAiStreamingResponseBuilder extends StreamingResponseBuilder {
 
+
+    public OpenAiStreamingResponseBuilder(int inputToken) {
+        super(inputToken);
+    }
+
     /**
      * Build the response
      * 

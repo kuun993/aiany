@@ -11,6 +11,9 @@ import java.util.List;
 
 public class AzureOpenAiStreamingResponseBuilder extends StreamingResponseBuilder {
 
+    public AzureOpenAiStreamingResponseBuilder(int inputToken) {
+        super(inputToken);
+    }
 
     /**
      * Append chat completions to the response builder
